@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AutronX · Super Admin</title>
+  <link rel="shortcut icon" href="./Image/favicon.jpg" type="image/x-icon" />
+  <link rel="stylesheet" href="./super-admin.css?v=20260824-logo1" />
+  <script src="./super-admin.js?v=20260823-profile4" defer></script>
+</head>
+<body>
+  <header class="admin-header">
+    <a href="/" class="admin-brand"><img src="./Image/logoVerni.png" alt="AutronX" /></a>
+    <div><span>Secure workspace</span><a href="/">Open configurator</a><button id="adminLogout" type="button" hidden>Sign out</button></div>
+  </header>
+
+  <main>
+    <section class="admin-login" id="adminLogin">
+      <div class="admin-login-card">
+        <span class="admin-kicker">Super admin</span>
+        <h1>Sign in to AutronX</h1>
+        <p>Review registered users and every saved panel design.</p>
+        <form id="adminLoginForm">
+          <label>Email address<input type="email" name="email" autocomplete="email" required /></label>
+          <label>Password<input type="password" name="password" autocomplete="current-password" minlength="8" required /></label>
+          <div class="admin-message" id="adminLoginMessage" hidden></div>
+          <button type="submit">Sign in</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="admin-dashboard" id="adminDashboard" hidden>
+      <div class="admin-titlebar">
+        <div><span class="admin-kicker">Super admin</span><h1>Users and designs</h1><p>A consolidated view of customer accounts and saved configurations.</p></div>
+        <button id="adminRefresh" type="button">Refresh data</button>
+      </div>
+
+      <div class="admin-stats" id="adminStats"></div>
+
+      <section class="admin-tools" aria-label="Account management">
+        <form class="admin-tool-card" id="adminCreateUserForm">
+          <div><span class="admin-kicker">Customer access</span><h2>Create a customer account</h2><p>Create an approved account with credentials the customer can use immediately.</p></div>
+          <div class="admin-tool-fields"><label>Full name<input name="name" minlength="2" maxlength="80" required /></label><label>Company name<input name="company" autocomplete="organization" minlength="2" maxlength="120" required /></label><label>Phone number<input name="phone" type="tel" inputmode="tel" maxlength="32" required /></label><label>Email<input name="email" type="email" required /></label><label>Temporary password<input name="password" type="password" minlength="8" maxlength="128" required /></label></div>
+          <div class="admin-tool-footer"><span class="admin-form-message" id="adminCreateUserMessage" hidden></span><button type="submit">Create approved user</button></div>
+        </form>
+        <form class="admin-tool-card" id="adminCredentialsForm">
+          <div><span class="admin-kicker">Administrator security</span><h2>Update your sign-in</h2><p>Confirm with your current password before changing the administrator email or password.</p></div>
+          <div class="admin-tool-fields"><label>Administrator email<input id="adminAccountEmail" name="email" type="email" required /></label><label>Current password<input name="currentPassword" type="password" autocomplete="current-password" required /></label><label>New password <small>(optional)</small><input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" /></label></div>
+          <div class="admin-tool-footer"><span class="admin-form-message" id="adminCredentialsMessage" hidden></span><button type="submit">Save secure changes</button></div>
+        </form>
+      </section>
+
+      <div class="admin-section-heading"><div><h2>Registered users</h2><span id="userCountLabel"></span></div><input id="userSearch" type="search" placeholder="Search users" /></div>
+      <div class="admin-table-wrap">
+        <table>
+          <thead><tr><th>User</th><th>Company / phone</th><th>Role</th><th>Saved designs</th><th>Draft</th><th>Access</th><th>Joined</th></tr></thead>
+          <tbody id="adminUsers"></tbody>
+        </table>
+      </div>
+
+      <div class="admin-section-heading designs-heading"><div><h2>Saved panel designs</h2><span id="designCountLabel"></span></div><input id="designSearch" type="search" placeholder="Search designs" /></div>
+      <div class="admin-designs" id="adminDesigns"></div>
+    </section>
+  </main>
+</body>
+</html>

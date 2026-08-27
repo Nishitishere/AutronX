@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My AutronX Workspace</title>
+  <link rel="shortcut icon" href="./Image/favicon.jpg" type="image/x-icon" />
+  <link rel="stylesheet" href="./dashboard.css?v=20260823-orders2" />
+  <script src="./dashboard.js?v=20260823-orders2" defer></script>
+</head>
+<body>
+  <header class="workspace-header">
+    <a class="workspace-brand" href="/" aria-label="AutronX configurator"><img src="./Image/logoVerni.png" alt="AutronX" /></a>
+    <nav aria-label="Account navigation"><a href="/">New design</a><button id="workspaceLogout" type="button" hidden>Sign out</button></nav>
+  </header>
+
+  <main>
+    <section class="workspace-login" id="workspaceLogin" hidden>
+      <div class="workspace-login-aside"><span class="workspace-orbit" aria-hidden="true"><i></i><i></i><i></i></span><div><span>Your AutronX workspace</span><h1>Every panel.<br />Always within reach.</h1><p>Sign in to review your saved configurations and visual previews.</p></div></div>
+      <form id="workspaceLoginForm">
+        <span class="workspace-kicker">Customer account</span><h2>Welcome back</h2><p>Continue to your saved panel designs.</p>
+        <label>Email address<input type="email" name="email" autocomplete="email" required /></label>
+        <label>Password<input type="password" name="password" autocomplete="current-password" minlength="8" required /></label>
+        <div class="workspace-message" id="workspaceLoginMessage" hidden></div>
+        <button type="submit">Sign in</button>
+        <a href="/">Create an account in the configurator</a>
+      </form>
+    </section>
+
+    <section class="workspace-dashboard" id="workspaceDashboard" hidden>
+      <div class="workspace-hero">
+        <div><span class="workspace-kicker">Personal workspace</span><h1 id="workspaceGreeting">Your designs</h1><p>Review saved panels and continue shaping your space.</p></div>
+        <a href="/">Create a new panel <span aria-hidden="true">→</span></a>
+      </div>
+
+      <a class="workspace-draft" id="workspaceDraft" href="/" hidden></a>
+
+      <div class="workspace-stats" id="workspaceStats"></div>
+
+      <div class="workspace-section-heading">
+        <div><h2>Saved designs</h2><span id="workspaceDesignCount"></span></div>
+        <label><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="workspaceSearch" type="search" placeholder="Search designs" /></label>
+      </div>
+      <div class="workspace-designs" id="workspaceDesigns"></div>
+    </section>
+  </main>
+</body>
+</html>

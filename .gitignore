@@ -1,0 +1,13 @@
+node_modules/
+.env
+npm-debug.log*
+*.log
+data/accounts.json
+data/accounts.json.tmp
+autronx.7z
+autronx.zip
+Git/
+beforepanelnamefix/
+output/
+tmp/
+beta icons/
