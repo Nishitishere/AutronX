@@ -85,10 +85,6 @@ $(document).ready(function () {
         }
       }
       loadData(allData);
-      var getValue = document.getElementById("email-verify");
-      if (getValue.value != "") {
-        getValue.value = "";
-      }
       $(".rmenu-material").addClass("hide");
       $(".rmenu-module").addClass("hide");
       $(".accessories-rmenu").addClass("hide");
@@ -97,11 +93,8 @@ $(document).ready(function () {
       $(".rmenu-frame").addClass("hide");
       $(".rmenu-item-round").addClass("hide");
 
-      $(".verify-email").css("display", "inline-block");
-      // $("#GetEmail").css("display", "none");
-      $("#GetEmail").addClass("hide");
-
       $(".quantity-switch").addClass("hide");
+      takePdf();
     } else {
       customAlert("Important! Please Select the quantity..");
     }

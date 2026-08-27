@@ -4168,10 +4168,10 @@ body.save-design-visible .quantity-switch {
   font-weight: 700;
 }
 
-.account-form input {
+.account-form input,
+.account-form textarea {
   width: 100%;
-  height: 44px;
-  padding: 0 13px;
+  padding: 11px 13px;
   border: 1px solid #dfe2eb;
   border-radius: 10px;
   outline: none;
@@ -4181,10 +4181,27 @@ body.save-design-visible .quantity-switch {
   font-size: 0.84rem;
 }
 
-.account-form input:focus {
+.account-form input {
+  height: 44px;
+}
+
+.account-form textarea {
+  min-height: 88px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.account-form input:focus,
+.account-form textarea:focus {
   border-color: var(--ui-violet);
   background: #fff;
   box-shadow: 0 0 0 3px rgba(116, 100, 214, 0.1);
+}
+
+.account-optional {
+  color: #9296a6;
+  font-size: 0.66rem;
+  font-weight: 500;
 }
 
 .account-primary {

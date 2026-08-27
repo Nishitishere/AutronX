@@ -387,7 +387,8 @@ async function handleApi(request, response, pathname) {
         preview,
         notes: data.notes,
       });
-      sendJson(response, 201, { success: true, design });
+      const adminNotificationSent = await notifyAdminOfNewDesign(user, design);
+      sendJson(response, 201, { success: true, design, adminNotificationSent });
       return true;
     }
 
@@ -546,64 +547,48 @@ function isValidEmail(value) {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-async function sendPanelDesign(request, response) {
+async function notifyAdminOfNewDesign(user, design) {
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const notificationEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+  if (!smtpHost || !smtpUser || !smtpPass || !notificationEmail) return false;
+
   try {
-    const data = await readBody(request);
-    const customerEmail = String(data.email || "").trim();
-    if (!isValidEmail(customerEmail)) {
-      sendJson(response, 400, { success: false, message: "Enter a valid email address." });
-      return;
-    }
-
-    const smtpHost = process.env.SMTP_HOST;
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
-    if (!smtpHost || !smtpUser || !smtpPass) {
-      sendJson(response, 503, {
-        success: false,
-        message: "Email delivery is not configured on this server. The design can still be downloaded.",
-      });
-      return;
-    }
-
     const transport = nodemailer.createTransport({
       host: smtpHost,
       port: Number.parseInt(process.env.SMTP_PORT || "587", 10),
       secure: process.env.SMTP_SECURE === "true",
       auth: { user: smtpUser, pass: smtpPass },
     });
-
-    const subject = String(data.subject || "AutronX Panel Design").slice(0, 160);
-    const panelDetails = String(data.message || "No panel details supplied.").slice(0, 50_000);
-    const additionalMessage = String(data.additional_message || "").slice(0, 5_000);
-    const copyTo = process.env.MAIL_COPY_TO || "info@autronx.com";
     const text = [
-      "AutronX Panel Design Request",
+      "A customer saved a new AutronX panel design.",
       "",
-      `Customer email: ${customerEmail}`,
-      "",
-      "Panel details:",
-      panelDetails,
-      ...(additionalMessage ? ["", "Additional message:", additionalMessage] : []),
+      `Reference: ${design.reference}`,
+      `Design: ${design.name}`,
+      `Customer: ${user.name}`,
+      `Email: ${user.email}`,
+      `Company: ${user.company || "Not supplied"}`,
+      `Phone: ${user.phone || "Not supplied"}`,
+      ...(design.notes ? ["", "Order note:", design.notes] : []),
     ].join("\n");
 
     await transport.sendMail({
       from: process.env.MAIL_FROM || smtpUser,
-      to: customerEmail,
-      cc: copyTo,
-      replyTo: customerEmail,
-      subject,
+      to: notificationEmail,
+      replyTo: user.email,
+      subject: `New AutronX panel: ${design.reference}`,
       text,
+      attachments: [{
+        filename: `${design.reference || "autronx-order"}.pdf`,
+        content: createOrderPdf(user, design),
+        contentType: "application/pdf",
+      }],
     });
-
-    sendJson(response, 200, { success: true, message: "Panel design sent successfully." });
+    return true;
   } catch (error) {
-    const statusCode = error.statusCode || (error instanceof SyntaxError ? 400 : 500);
-    console.error("Panel email error:", error.message);
-    sendJson(response, statusCode, {
-      success: false,
-      message: statusCode === 500 ? "Unable to send the email right now." : error.message,
-    });
+    console.error("Admin notification error:", error.message);
+    return false;
   }
 }
 
@@ -650,20 +635,10 @@ async function serveStatic(request, response, pathname) {
 
 const server = createServer(async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
-  const isEmailRoute = url.pathname === "/api/panel-design" || url.pathname === "/send_mail.php";
 
-  if (url.pathname.startsWith("/api/") && !isEmailRoute) {
+  if (url.pathname.startsWith("/api/")) {
     const handled = await handleApi(request, response, url.pathname);
     if (!handled) sendJson(response, 404, { success: false, message: "API route not found." });
-    return;
-  }
-
-  if (isEmailRoute) {
-    if (request.method !== "POST") {
-      sendJson(response, 405, { success: false, message: "Method not allowed." });
-      return;
-    }
-    await sendPanelDesign(request, response);
     return;
   }
 

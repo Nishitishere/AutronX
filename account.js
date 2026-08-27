@@ -303,6 +303,7 @@
         <form class="account-form" data-save-design>
           <label>Design name<input name="name" maxlength="80" value="${escapeHtml(editing?.name || `${panelType || "AutronX"} panel`)}" required /></label>
           <div class="save-design-summary"><span>Panel</span><strong>${escapeHtml(panelType || "Not selected")}</strong><span>Material</span><strong>${escapeHtml(configuration.Material || "Not selected")}</strong><span>Size</span><strong>${escapeHtml(configuration.Module ? `${configuration.Module} Module` : "Not selected")}</strong></div>
+          <label>Order note <span class="account-optional">Optional · included in the order PDF and admin notification</span><textarea name="notes" maxlength="2000" rows="4" placeholder="Add site, room, delivery, or installation details...">${escapeHtml(editing?.notes || document.querySelector("#additional_msg")?.value || "")}</textarea></label>
           <div class="account-message" hidden></div>
           <button type="submit" class="account-primary">${editing ? "Save changes" : "Save to my account"}</button>
         </form>`;
@@ -356,7 +357,7 @@
             name: new FormData(form).get("name"),
             configuration,
             preview,
-            notes: document.querySelector("#additional_msg")?.value || "",
+            notes: new FormData(form).get("notes") || "",
           }),
         });
         await clearDraft();
