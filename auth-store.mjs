@@ -3,11 +3,14 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
+import pg from "pg";
 
 const scrypt = promisify(scryptCallback);
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const storePath = resolve(root, "data", "accounts.json");
 const sessionLifetimeMs = 7 * 24 * 60 * 60 * 1000;
+const databaseUrl = process.env.DATABASE_URL || "";
+const pool = databaseUrl ? new pg.Pool({ connectionString: databaseUrl }) : null;
 let store;
 let writeQueue = Promise.resolve();
 
@@ -44,6 +47,15 @@ function hashToken(token) {
 }
 
 async function persist() {
+  if (pool) {
+    await pool.query(
+      `INSERT INTO autronx_store (id, state, updated_at)
+       VALUES (1, $1::jsonb, NOW())
+       ON CONFLICT (id) DO UPDATE SET state = EXCLUDED.state, updated_at = NOW()`,
+      [JSON.stringify(store)]
+    );
+    return;
+  }
   const tempPath = `${storePath}.tmp`;
   await mkdir(dirname(storePath), { recursive: true });
   await writeFile(tempPath, JSON.stringify(store, null, 2), "utf8");
@@ -60,11 +72,34 @@ export async function initializeAccountStore() {
   if (process.env.NODE_ENV === "production" && !process.env.ADMIN_PASSWORD) {
     throw new Error("ADMIN_PASSWORD must be configured when NODE_ENV=production.");
   }
-  try {
-    store = JSON.parse(await readFile(storePath, "utf8"));
-  } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-    store = { version: 1, users: [], sessions: [], designs: [], drafts: [] };
+  if (pool) {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS autronx_store (
+        id SMALLINT PRIMARY KEY CHECK (id = 1),
+        state JSONB NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    const result = await pool.query("SELECT state FROM autronx_store WHERE id = 1");
+    if (result.rowCount) {
+      store = result.rows[0].state;
+    } else {
+      try {
+        store = JSON.parse(await readFile(storePath, "utf8"));
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+        store = { version: 1, users: [], sessions: [], designs: [], drafts: [] };
+      }
+      await persist();
+      console.log("Migrated the local account store to PostgreSQL.");
+    }
+  } else {
+    try {
+      store = JSON.parse(await readFile(storePath, "utf8"));
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      store = { version: 1, users: [], sessions: [], designs: [], drafts: [] };
+    }
   }
 
   store.users ||= [];
