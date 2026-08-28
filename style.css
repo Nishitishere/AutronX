@@ -528,6 +528,10 @@ body {
   border: 2px solid rgb(12, 154, 193);
   border-radius: 16px;
   position: relative;
+  background-image: url("./icon/Icons80x80px/General Switch.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 24px 24px;
 }
 
 .rmenu-item-i img {
@@ -539,7 +543,7 @@ body {
 .switch2Image {
   width: 30px;
   height: 30px;
-  /* background: url(./icon/Icons80x80px/general\ switch.png); */
+  background-image: url("./icon/Icons80x80px/General Switch.png");
   border-radius: 16px;
   background-repeat: no-repeat;
   background-position: center;
@@ -5467,6 +5471,13 @@ body.builder-active .module-12 {
 .right-bar .rmenu-list > .rmenu-item.disabled > svg {
   color: #aeb2bf !important;
   background: #f8f8fa !important;
+}
+
+/* Empty switch slots use the same neutral default glyph as the icon picker. */
+.switch2Image {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 24px 24px;
 }
 
 @media (max-width: 900px) and (orientation: landscape) {

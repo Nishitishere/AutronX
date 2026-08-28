@@ -130,7 +130,9 @@ function createOrderPdf(user, design) {
     `Phone: ${user.phone || "Not provided"}`,
     "",
     "PANEL CONFIGURATION",
-    ...Object.entries(configuration).flatMap(([key, value]) => wrapPdfLine(`${key}: ${value}`)),
+    ...Object.entries(configuration)
+      .filter(([key]) => !key.startsWith("Icon-"))
+      .flatMap(([key, value]) => wrapPdfLine(`${key}: ${value}`)),
     ...(design.notes ? ["", "NOTES", ...wrapPdfLine(design.notes)] : []),
     "",
     "This document is a saved AutronX configuration summary.",
