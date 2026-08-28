@@ -3345,6 +3345,43 @@ a:focus-visible {
   }
 }
 
+/* Final safety net: the footer owns the controls even before builder state is applied. */
+.tp-flogo {
+  position: fixed !important;
+  z-index: 30 !important;
+  display: flex !important;
+  width: max-content !important;
+  max-width: calc(100vw - 24px);
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.tp-flogo .quantity-switch {
+  position: static !important;
+  inset: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  flex: 0 0 auto;
+  margin: 0 !important;
+}
+
+.tp-flogo .account-save-button,
+.tp-flogo #GetEmail {
+  position: static !important;
+  flex: 0 0 auto;
+  margin: 0 !important;
+}
+
+@media (max-width: 680px) {
+  .tp-flogo { gap: 6px; }
+  .tp-flogo .quantity-switch { padding-inline: 7px !important; }
+  .tp-flogo .quantity-switch > div:first-child { display: none; }
+  .tp-flogo .account-save-button { min-width: auto; padding-inline: 11px !important; }
+  .tp-flogo #GetEmail { padding-inline: 12px !important; }
+}
+
 /* Tablet portrait: keep the configurator controls reachable without overlap. */
 @media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
   body.builder-active .navbar,
@@ -5475,6 +5512,15 @@ body.builder-active .module-12 {
 
 /* Empty switch slots use the same neutral default glyph as the icon picker. */
 .switch2Image {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 24px 24px;
+}
+
+/* Every empty icon drop target gets a visible default switch glyph. Inline
+   preview images/backgrounds still win when the user has chosen an icon. */
+[data-droppable-class="switch"] {
+  background-image: url("./icon/Icons80x80px/General Switch.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 24px 24px;

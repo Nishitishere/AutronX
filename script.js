@@ -1735,7 +1735,7 @@ function loadData(allData) {
   for (const key in allData) {
     // Icon placements are visual details already represented in the panel
     // preview; keep serialized URLs out of the customer-facing order table.
-    if (key.startsWith("Icon-")) continue;
+    if (/^\s*icon[-_:]/i.test(String(key))) continue;
     const displayKey = key === "Panel" ? "Panel Type" : key;
     const displayValue = key === "Panel" ? getPanelTypeLabel(allData[key]) : allData[key];
     dataHtml += `<tr><td>${displayKey}</td><td>${displayValue}</td></tr>`;

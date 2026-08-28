@@ -131,7 +131,7 @@ function createOrderPdf(user, design) {
     "",
     "PANEL CONFIGURATION",
     ...Object.entries(configuration)
-      .filter(([key]) => !key.startsWith("Icon-"))
+      .filter(([key]) => !/^\s*icon[-_:]/i.test(String(key)))
       .flatMap(([key, value]) => wrapPdfLine(`${key}: ${value}`)),
     ...(design.notes ? ["", "NOTES", ...wrapPdfLine(design.notes)] : []),
     "",
