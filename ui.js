@@ -87,6 +87,35 @@
     };
 
     const materialStage = setupMaterialStage();
+    const stepPanelSelector = ":scope > .rmenu-item-list, :scope > .accessories-rmenu, :scope > .rmenu-item-round";
+    const optionPanels = stepItems.flatMap((item) => [...item.querySelectorAll(stepPanelSelector)]);
+
+    // Treat the stepper as one controlled view: a step change closes every
+    // previous option surface before the legacy handlers open the new one.
+    // This mirrors the reference builder's single currentStep state and keeps
+    // saved selections independent from which options panel is visible.
+    const closeStepPanels = () => {
+      for (const panel of optionPanels) {
+        panel.classList.remove("show");
+        panel.classList.add("hide");
+      }
+      for (const item of stepItems) item.setAttribute("aria-expanded", "false");
+    };
+
+    const syncStepPanels = (activeIndex) => {
+      const activeItem = stepItems[activeIndex];
+      for (const panel of optionPanels) {
+        const owner = panel.closest(".rmenu-list > .rmenu-item");
+        const materialIsCentral = owner?.classList.contains("material") && body.classList.contains("material-stage-active");
+        const shouldRemainOpen = owner === activeItem && panel.classList.contains("show") && !materialIsCentral;
+        panel.classList.toggle("hide", !shouldRemainOpen);
+        if (!shouldRemainOpen) panel.classList.remove("show");
+      }
+      stepItems.forEach((item, index) => {
+        const panel = item.querySelector(stepPanelSelector);
+        item.setAttribute("aria-expanded", String(Boolean(panel && index === activeIndex && panel.classList.contains("show"))));
+      });
+    };
 
     const syncMaterialStage = () => {
       if (!materialStage) return;
@@ -260,6 +289,7 @@
       }
 
       syncMaterialStage();
+      syncStepPanels(activeIndex);
     };
 
     for (const button of seriesButtons) {
@@ -271,7 +301,10 @@
         if (item.classList.contains("disabled")) {
           event.preventDefault();
           event.stopImmediatePropagation();
+          return;
         }
+        closeStepPanels();
+        stepItems.forEach((candidate) => candidate.classList.toggle("active", candidate === item));
       }, true);
       item.addEventListener("keydown", (event) => {
         if ((event.key === "Enter" || event.key === " ") && !item.classList.contains("disabled")) {

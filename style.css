@@ -4857,6 +4857,24 @@ body.builder-active .starter-template {
   height: auto;
 }
 
+/* A step owns exactly one option surface. Stale legacy show classes must not
+   keep a previous step visible when the user navigates backwards. */
+body.builder-active .rmenu-list > .rmenu-item:not(.active) > .rmenu-item-list,
+body.builder-active .rmenu-list > .rmenu-item:not(.active) > .accessories-rmenu,
+body.builder-active .rmenu-list > .rmenu-item:not(.active) > .rmenu-item-round {
+  display: none !important;
+}
+
+body.builder-active .rmenu-list > .rmenu-item.active {
+  z-index: 20;
+}
+
+body.builder-active .rmenu-list > .rmenu-item.active > .rmenu-item-list,
+body.builder-active .rmenu-list > .rmenu-item.active > .accessories-rmenu,
+body.builder-active .rmenu-list > .rmenu-item.active > .rmenu-item-round {
+  z-index: 30;
+}
+
 /* Step one lives in the workspace, matching the reference flow's
    central option hierarchy while preserving the legacy click logic. */
 .material-stage {
