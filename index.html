@@ -54,9 +54,9 @@
   </style>
 
   <!-- Custom CSS -->
-  <link href="./style.css?v=20260828-stepstate2" rel="stylesheet" />
+  <link href="./style.css?v=20260828-actionbar1" rel="stylesheet" />
   <script src="./ui.js?v=20260828-stepstate1" defer></script>
-  <script src="./account.js?v=20260827-admin-notify1" defer></script>
+  <script src="./account.js?v=20260828-actionbar1" defer></script>
 </head>
 
 <body id="myBody">
@@ -80,6 +80,17 @@
 
   <!-- down right corner content -->
   <div class="ml-auto tp-flogo" aria-live="polite">
+    <div class="quantity-switch">
+      <div class="mx-1">
+        <span>Quantity</span>
+      </div>
+      <div class="input-group">
+        <button type="button" class="button-minus" data-field="quantity" aria-label="Decrease quantity">−</button>
+        <input type="number" value="0" step="1" max="100" name="quantity" id="QuantityValue"
+          class="quantity-field border-0" />
+        <button type="button" class="button-plus" data-field="quantity" aria-label="Increase quantity">+</button>
+      </div>
+    </div>
     <button id="GetEmail" class="btn btn-success ml-auto hide" disabled>
       Download PDF
     </button>
@@ -121,18 +132,6 @@
         <div class="module module-black module-fsilver hide" id="maindiv"></div>
       </div>
 
-      <!-- for selecting quantity -->
-      <div class="quantity-switch">
-        <div class="mx-1">
-          <span>Quantity</span>
-        </div>
-        <div class="input-group">
-          <button type="button" class="button-minus" data-field="quantity" aria-label="Decrease quantity">−</button>
-          <input type="number" value="0" step="1" max="100" name="quantity" id="QuantityValue"
-            class="quantity-field border-0" />
-          <button type="button" class="button-plus" data-field="quantity" aria-label="Increase quantity">+</button>
-        </div>
-      </div>
       <!-- <table class="hide t-data">
           <tbody id="tableData"></tbody>
         </table> -->

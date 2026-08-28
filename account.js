@@ -64,7 +64,7 @@
     saveButton.id = "SaveDesign";
     saveButton.className = "btn account-save-button hide";
     saveButton.textContent = "Save design";
-    downloadControls.insertBefore(saveButton, downloadControls.firstChild);
+    downloadControls.insertBefore(saveButton, downloadControls.querySelector("#GetEmail"));
 
     const overlay = document.createElement("div");
     overlay.className = "account-overlay";

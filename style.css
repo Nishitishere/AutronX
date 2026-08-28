@@ -5483,3 +5483,54 @@ body.builder-active .module-12 {
     padding: 6px !important;
   }
 }
+
+/* Keep all final-step actions in one layout context so they cannot collide. */
+body.builder-active .tp-flogo {
+  display: flex !important;
+  right: 22px !important;
+  bottom: 22px !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: auto;
+  max-width: calc(100vw - 44px);
+}
+
+body.builder-active .tp-flogo .quantity-switch {
+  position: static !important;
+  inset: auto !important;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+body.builder-active .tp-flogo .account-save-button,
+body.builder-active .tp-flogo #GetEmail {
+  position: static;
+  flex: 0 0 auto;
+  margin: 0 !important;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  body.builder-active .tp-flogo {
+    right: 12px !important;
+    bottom: 12px !important;
+    gap: 7px;
+    max-width: calc(100vw - 24px);
+  }
+
+  body.builder-active .tp-flogo .quantity-switch {
+    min-height: 44px;
+    padding: 4px 5px 4px 9px;
+  }
+
+  body.builder-active .tp-flogo .account-save-button {
+    min-width: 104px;
+    min-height: 44px;
+    padding-inline: 13px !important;
+  }
+
+  body.builder-active .tp-flogo #GetEmail {
+    min-height: 44px;
+    padding-inline: 16px !important;
+  }
+}
