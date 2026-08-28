@@ -1635,9 +1635,40 @@
   }
 
   window.captureAutronxPanelPreview = async function () {
-    const panel = document.querySelector(".module:not(.hide)") || document.querySelector(".module");
-    if (!panel || typeof window.html2canvas !== "function") return null;
-    const temporaryIcons = [];
+    const sourcePanel = document.querySelector(".module:not(.hide)") || document.querySelector(".module");
+    if (!sourcePanel || typeof window.html2canvas !== "function") return null;
+    const bounds = sourcePanel.getBoundingClientRect();
+    if (bounds.width < 1 || bounds.height < 1) return null;
+
+    // Capture an isolated copy. The live panel is centred with an !important
+    // translateX rule; capturing it directly makes html2canvas apply that
+    // transform again and clips half of wide panels.
+    const captureHost = document.createElement("div");
+    Object.assign(captureHost.style, {
+      position: "fixed",
+      left: "-10000px",
+      top: "0",
+      width: `${bounds.width}px`,
+      height: `${bounds.height}px`,
+      pointerEvents: "none",
+    });
+    captureHost.setAttribute("aria-hidden", "true");
+    const panel = sourcePanel.cloneNode(true);
+    Object.assign(panel.style, {
+      position: "relative",
+      inset: "auto",
+      top: "0",
+      width: `${bounds.width}px`,
+      height: `${bounds.height}px`,
+      transition: "none",
+      animation: "none",
+    });
+    panel.style.setProperty("left", "0", "important");
+    panel.style.setProperty("margin-left", "0", "important");
+    panel.style.setProperty("transform", "none", "important");
+    captureHost.appendChild(panel);
+    document.body.appendChild(captureHost);
+
     for (const target of panel.querySelectorAll("[data-preview-src]")) {
       if (target.querySelector(":scope > img")) continue;
       const icon = document.createElement("img");
@@ -1646,19 +1677,31 @@
       icon.alt = "";
       icon.setAttribute("aria-hidden", "true");
       target.appendChild(icon);
-      temporaryIcons.push(icon);
     }
-    const images = [...panel.querySelectorAll("img")];
-    await Promise.all(images.map((image) => image.complete ? image.decode?.().catch(() => {}) : new Promise((resolve) => {
-      image.addEventListener("load", resolve, { once: true });
-      image.addEventListener("error", resolve, { once: true });
-    })));
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const canvas = await window.html2canvas(panel, { backgroundColor: null, scale: 2, logging: false, useCORS: true });
-    temporaryIcons.forEach((icon) => icon.remove());
-    let dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-    if (dataUrl.length > 1_500_000) dataUrl = canvas.toDataURL("image/jpeg", 0.62);
-    return { canvas, dataUrl, width: panel.offsetWidth, height: panel.offsetHeight };
+    try {
+      const images = [...panel.querySelectorAll("img")];
+      await Promise.all(images.map((image) => image.complete ? image.decode?.().catch(() => {}) : new Promise((resolve) => {
+        image.addEventListener("load", resolve, { once: true });
+        image.addEventListener("error", resolve, { once: true });
+      })));
+      await document.fonts?.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const canvas = await window.html2canvas(panel, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: false,
+        imageTimeout: 5000,
+        width: Math.ceil(bounds.width),
+        height: Math.ceil(bounds.height),
+      });
+      let dataUrl = canvas.toDataURL("image/jpeg", 0.86);
+      if (dataUrl.length > 1_500_000) dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      return { canvas, dataUrl, width: bounds.width, height: bounds.height };
+    } finally {
+      captureHost.remove();
+    }
   };
 
   async function takeScreeshot() {

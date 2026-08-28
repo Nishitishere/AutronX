@@ -165,11 +165,15 @@ function createOrderPdf(user, design) {
       return `BT /F1 ${size} Tf 48 ${y} Td (${pdfText(line)}) Tj ET`;
     }).join("\n");
     if (preview && index === 0) {
-      const scale = Math.min(420 / preview.width, 390 / preview.height);
+      // Fit the saved builder snapshot into one stable box. A single scale
+      // preserves the panel's exact proportions for every module size.
+      const imageBox = { x: 48, y: 70, width: 499, height: 390 };
+      const scale = Math.min(imageBox.width / preview.width, imageBox.height / preview.height);
       const width = Math.round(preview.width * scale);
       const height = Math.round(preview.height * scale);
-      const x = Math.round((595 - width) / 2);
-      body += `\nq ${width} 0 0 ${height} ${x} 80 cm /PanelPreview Do Q`;
+      const x = Math.round(imageBox.x + (imageBox.width - width) / 2);
+      const y = Math.round(imageBox.y + (imageBox.height - height) / 2);
+      body += `\nq ${width} 0 0 ${height} ${x} ${y} cm /PanelPreview Do Q`;
     }
     const imageResource = preview && index === 0 ? ` /XObject << /PanelPreview ${imageId} 0 R >>` : "";
     objects[pageId] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >>${imageResource} >> /Contents ${contentId} 0 R >>`;
