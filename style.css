@@ -4887,7 +4887,8 @@ body.builder-active .rmenu-list > .rmenu-item.active > .rmenu-item-round {
   overflow-y: auto;
   background:
     radial-gradient(circle at 52% 45%, rgba(116, 100, 214, 0.055), transparent 29%),
-    transparent;
+    #f7f8fb;
+  isolation: isolate;
 }
 
 .material-stage[hidden] {
@@ -4896,6 +4897,17 @@ body.builder-active .rmenu-list > .rmenu-item.active > .rmenu-item-round {
 
 body.material-stage-active .rmenu-material {
   display: none !important;
+}
+
+/* Material is a dedicated choice screen. A previously configured panel must
+   not remain behind its heading/cards when the user navigates back to step 1. */
+body.material-stage-active .module,
+body.material-stage-active .quantity-switch,
+body.material-stage-active .tp-flogo,
+body.material-stage-active #watermark {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .material-stage-content {
