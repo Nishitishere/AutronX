@@ -528,10 +528,7 @@ body {
   border: 2px solid rgb(12, 154, 193);
   border-radius: 16px;
   position: relative;
-  background-image: url("./icon/Icons80x80px/General Switch.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 24px 24px;
+  background: transparent;
 }
 
 .rmenu-item-i img {
@@ -543,7 +540,8 @@ body {
 .switch2Image {
   width: 30px;
   height: 30px;
-  background-image: url("./icon/Icons80x80px/General Switch.png");
+  border: 2px solid rgb(12, 154, 193);
+  background-image: none;
   border-radius: 16px;
   background-repeat: no-repeat;
   background-position: center;
@@ -5510,20 +5508,9 @@ body.builder-active .module-12 {
   background: #f8f8fa !important;
 }
 
-/* Empty switch slots use the same neutral default glyph as the icon picker. */
+/* Empty switch slots remain visible without pre-selecting an icon. */
 .switch2Image {
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 24px 24px;
-}
-
-/* Every empty icon drop target gets a visible default switch glyph. Inline
-   preview images/backgrounds still win when the user has chosen an icon. */
-[data-droppable-class="switch"] {
-  background-image: url("./icon/Icons80x80px/General Switch.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 24px 24px;
+  background-image: none;
 }
 
 @media (max-width: 900px) and (orientation: landscape) {

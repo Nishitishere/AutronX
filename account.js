@@ -39,6 +39,8 @@
   };
 
   ready(async () => {
+    const launchParameters = new URLSearchParams(window.location.search);
+    const shouldResumeDraft = launchParameters.get("resume") === "1";
     const navbar = document.querySelector(".navbar");
     const context = document.querySelector(".navbar-context");
     const downloadControls = document.querySelector(".tp-flogo");
@@ -429,7 +431,7 @@
         }
         state.user = result.user;
         updateUserUi();
-        await loadDraft({ resume: true });
+        await loadDraft({ resume: shouldResumeDraft });
         if (saveButton.classList.contains("hide")) await renderDesigns();
         else renderSave();
       } catch (error) {
@@ -447,7 +449,7 @@
         await loadDraft();
         applyConfiguration(state.editingDesign.configuration);
       } else {
-        await loadDraft({ resume: true });
+        await loadDraft({ resume: shouldResumeDraft });
       }
     } catch {
       state.user = null;

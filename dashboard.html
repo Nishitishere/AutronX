@@ -6,12 +6,12 @@
   <title>My AutronX Workspace</title>
   <link rel="shortcut icon" href="./Image/favicon.jpg" type="image/x-icon" />
   <link rel="stylesheet" href="./dashboard.css?v=20260827-order-notes1" />
-  <script src="./dashboard.js?v=20260827-order-notes1" defer></script>
+  <script src="./dashboard.js?v=20260829-corrections1" defer></script>
 </head>
 <body>
   <header class="workspace-header">
     <a class="workspace-brand" href="/" aria-label="AutronX configurator"><img src="./Image/logoVerni.png" alt="AutronX" /></a>
-    <nav aria-label="Account navigation"><a href="/">New design</a><button id="workspaceLogout" type="button" hidden>Sign out</button></nav>
+    <nav aria-label="Account navigation"><a href="/?new=1">New design</a><button id="workspaceLogout" type="button" hidden>Sign out</button></nav>
   </header>
 
   <main>
@@ -30,10 +30,10 @@
     <section class="workspace-dashboard" id="workspaceDashboard" hidden>
       <div class="workspace-hero">
         <div><span class="workspace-kicker">Personal workspace</span><h1 id="workspaceGreeting">Your designs</h1><p>Review saved panels and continue shaping your space.</p></div>
-        <a href="/">Create a new panel <span aria-hidden="true">→</span></a>
+        <a href="/?new=1">Create a new panel <span aria-hidden="true">→</span></a>
       </div>
 
-      <a class="workspace-draft" id="workspaceDraft" href="/" hidden></a>
+      <a class="workspace-draft" id="workspaceDraft" href="/?resume=1" hidden></a>
 
       <div class="workspace-stats" id="workspaceStats"></div>
 

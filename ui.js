@@ -298,6 +298,10 @@
 
     for (const item of stepItems) {
       item.addEventListener("click", (event) => {
+        // Controls inside an open step belong to the panel, not the step tab.
+        // Ignoring them here prevents search/select/upload interactions from
+        // closing the icon library during the capture phase.
+        if (event.target.closest(".rmenu-item-list, .accessories-rmenu, .rmenu-item-round")) return;
         if (item.classList.contains("disabled")) {
           event.preventDefault();
           event.stopImmediatePropagation();
