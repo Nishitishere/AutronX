@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const state = { user: null, designs: [], draft: null, draftTimer: null, draftSignature: "", editingDesign: null };
+  const state = { user: null, designs: [], draft: null, draftTimer: null, draftSavePromise: null, draftSignature: "", editingDesign: null };
 
   const api = async (path, options = {}) => {
     const response = await fetch(path, {
@@ -41,6 +41,7 @@
   ready(async () => {
     const launchParameters = new URLSearchParams(window.location.search);
     const shouldResumeDraft = launchParameters.get("resume") === "1";
+    const shouldStartFresh = launchParameters.get("new") === "1";
     const navbar = document.querySelector(".navbar");
     const context = document.querySelector(".navbar-context");
     const downloadControls = document.querySelector(".tp-flogo");
@@ -83,6 +84,7 @@
 
     const accessGate = document.createElement("section");
     accessGate.className = "builder-access-gate";
+    accessGate.hidden = true;
     accessGate.innerHTML = '<div><span>AutronX account</span><h2>Design access requires approval.</h2><p>Create an account, then sign in after an administrator approves it to start building panels and uploading custom SVG icons.</p><button type="button">Sign in or create account</button></div>';
     document.body.appendChild(accessGate);
 
@@ -142,12 +144,16 @@
       if (!isDraftable(configuration)) return;
       const signature = JSON.stringify(configuration);
       if (signature === state.draftSignature) return;
+      const request = api("/api/draft", { method: "PUT", body: JSON.stringify({ configuration }), keepalive });
+      state.draftSavePromise = request;
       try {
-        const result = await api("/api/draft", { method: "PUT", body: JSON.stringify({ configuration }), keepalive });
+        const result = await request;
         state.draft = result.draft;
         state.draftSignature = signature;
       } catch (error) {
         console.warn("Draft could not be saved.", error.message);
+      } finally {
+        if (state.draftSavePromise === request) state.draftSavePromise = null;
       }
     };
 
@@ -158,9 +164,18 @@
     };
 
     const clearDraft = async () => {
+      window.clearTimeout(state.draftTimer);
+      state.draftTimer = null;
+      // Finish any PUT that has already left the browser before sending DELETE,
+      // so an older request cannot arrive late and restore a discarded draft.
+      if (state.draftSavePromise) await state.draftSavePromise.catch(() => null);
       await api("/api/draft", { method: "DELETE", body: "{}" });
       state.draft = null;
-      state.draftSignature = "";
+      // Treat the configuration currently on screen as already handled. This
+      // prevents the Discard click (or pagehide immediately afterwards) from
+      // recreating the same draft. A real designer change produces a new
+      // signature and resumes autosave normally.
+      state.draftSignature = JSON.stringify(snapshotConfiguration());
     };
 
     const findOption = (selector, value) => [...document.querySelectorAll(selector)].find((item) =>
@@ -383,9 +398,10 @@
     overlay.addEventListener("click", (event) => { if (event.target === overlay) closeDialog(); });
     document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !overlay.hidden) closeDialog(); });
     document.addEventListener("click", () => window.setTimeout(syncSaveButton, 0));
-    document.addEventListener("click", () => scheduleDraftSave());
-    document.addEventListener("input", () => scheduleDraftSave());
-    document.addEventListener("change", () => scheduleDraftSave());
+    const isDesignerInteraction = (event) => !event.target.closest(".account-overlay, .builder-access-gate, .navbar-actions");
+    document.addEventListener("click", (event) => { if (isDesignerInteraction(event)) scheduleDraftSave(); });
+    document.addEventListener("input", (event) => { if (isDesignerInteraction(event)) scheduleDraftSave(); });
+    document.addEventListener("change", (event) => { if (isDesignerInteraction(event)) scheduleDraftSave(); });
     window.addEventListener("pagehide", () => { if (state.draftTimer) void saveDraft({ keepalive: true }); });
 
     dialogBody.addEventListener("click", async (event) => {
@@ -442,8 +458,9 @@
 
     try {
       state.user = (await api("/api/auth/me")).user;
+      if (shouldStartFresh) sessionStorage.removeItem("autronx-edit-design");
       const savedEdit = JSON.parse(sessionStorage.getItem("autronx-edit-design") || "null");
-      if (savedEdit?.userId === state.user?.id && savedEdit.design?.configuration) {
+      if (!shouldStartFresh && savedEdit?.userId === state.user?.id && savedEdit.design?.configuration) {
         state.editingDesign = savedEdit.design;
         sessionStorage.removeItem("autronx-edit-design");
         await loadDraft();
@@ -454,6 +471,7 @@
     } catch {
       state.user = null;
     }
+    document.body.classList.remove("account-session-loading");
     updateUserUi();
     syncSaveButton();
   });

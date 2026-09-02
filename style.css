@@ -3666,6 +3666,8 @@ body:not(.builder-active) .series-picker button:focus-visible .front,
 }
 
 .builder-access-gate { position:fixed; z-index:60; inset:72px 0 0; display:grid; place-items:center; padding:24px; background:rgba(247,248,252,.9); backdrop-filter:blur(9px); }
+.builder-access-gate[hidden],
+.account-session-loading .builder-access-gate { display:none !important; }
 .builder-access-gate>div { width:min(460px,100%); padding:34px; border:1px solid rgba(116,100,214,.18); border-radius:20px; color:#fff; background:linear-gradient(145deg,#22243c,#6557be 58%,#bb3b91); box-shadow:0 24px 70px rgba(31,34,57,.2); text-align:center; }
 .builder-access-gate span { color:rgba(255,255,255,.72); font-size:.64rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }.builder-access-gate h2 { margin:10px 0 11px; color:#fff; font-size:1.7rem; letter-spacing:-.04em; }.builder-access-gate p { margin:0; color:rgba(255,255,255,.78); font-size:.78rem; line-height:1.55; }.builder-access-gate button { min-height:42px; margin-top:22px; padding:0 16px; border:0; border-radius:10px; color:#5d52b7; background:#fff; font-size:.73rem; font-weight:800; cursor:pointer; }
 .custom-icon-upload { display:grid; gap:5px; margin:8px 6px 12px; padding:10px; border:1px dashed rgba(116,100,214,.38); border-radius:10px; background:rgba(116,100,214,.05); list-style:none; }.custom-icon-upload label{display:grid;gap:5px;color:#5e52b4;font-size:.64rem;font-weight:800}.custom-icon-upload input{max-width:100%;font-size:.6rem}.custom-icon-upload small,.custom-icon-message{color:#7d8293;font-size:.59rem;font-weight:600;line-height:1.35}.custom-icon-message{color:#5e52b4}.custom-icon-tile{border-color:rgba(116,100,214,.32)!important}
