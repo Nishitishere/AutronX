@@ -15,7 +15,7 @@
 
   <!-- custom jQuery -->
   <!-- <script src="./jQuery-sample.js" type="text/javascript"></script> -->
-  <script src="./script.js?v=20260828-iconfallback2" type="text/javascript"></script>
+  <script src="./script.js?v=20260904-panel4" type="text/javascript"></script>
   <script src="./beta-icons.generated.js" type="text/javascript"></script>
 
   <!-- bootstrap CDN -->
@@ -54,9 +54,11 @@
   </style>
 
   <!-- Custom CSS -->
-  <link href="./style.css?v=20260902-sessionflow1" rel="stylesheet" />
+  <link href="./style.css?v=20260904-panel4" rel="stylesheet" />
+  <link href="./panel-viewport.css?v=20260904-panel4" rel="stylesheet" />
+  <script src="./panel-viewport.js?v=20260904-panel4" defer></script>
   <script src="./ui.js?v=20260829-corrections1" defer></script>
-  <script src="./account.js?v=20260902-sessionflow1" defer></script>
+  <script src="./account.js?v=20260904-panel4" defer></script>
 </head>
 
 <body id="myBody" class="account-session-loading">
@@ -1636,7 +1638,8 @@
   window.captureAutronxPanelPreview = async function () {
     const sourcePanel = document.querySelector(".module:not(.hide)") || document.querySelector(".module");
     if (!sourcePanel || typeof window.html2canvas !== "function") return null;
-    const bounds = sourcePanel.getBoundingClientRect();
+    // Export native product geometry, independent of the user's preview zoom.
+    const bounds = { width: sourcePanel.offsetWidth, height: sourcePanel.offsetHeight };
     if (bounds.width < 1 || bounds.height < 1) return null;
 
     // Capture an isolated copy. The live panel is centred with an !important

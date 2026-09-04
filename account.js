@@ -103,7 +103,7 @@
       if (!state.user || !iconList || iconList.querySelector(".custom-icon-upload")) return;
       const item = document.createElement("li");
       item.className = "custom-icon-upload";
-      item.innerHTML = '<label><span>Custom SVG</span><input type="file" accept="image/svg+xml,.svg" /><small>Upload an SVG, then drag it onto a switch.</small></label><div class="custom-icon-message" aria-live="polite"></div>';
+      item.innerHTML = '<label><span>Custom SVG</span><input type="file" accept="image/svg+xml,.svg" /></label><label>Icon type<select class="custom-icon-type"><option value="switch">Switch / scene</option><option value="fan">Fan</option><option value="dimmer">Dimmer</option><option value="curtain">Curtain</option></select></label><small>Choose the matching control type, then drag the uploaded icon onto your panel.</small><div class="custom-icon-message" aria-live="polite"></div>';
       iconList.prepend(item);
       item.querySelector("input").addEventListener("change", async (event) => {
         const file = event.target.files?.[0];
@@ -112,14 +112,24 @@
         if (file.type !== "image/svg+xml" && !file.name.toLowerCase().endsWith(".svg")) { message.textContent = "SVG files only."; return; }
         if (file.size > 100 * 1024) { message.textContent = "Keep SVG files below 100 KB."; return; }
         const source = await file.text();
-        const safe = /^\s*<svg[\s>]/i.test(source) && !/<\s*(script|foreignObject|iframe|object|embed|audio|video)\b/i.test(source) && !/\son[a-z]+\s*=/i.test(source) && !/(javascript:|https?:|data:)/i.test(source);
+        const svg = new DOMParser().parseFromString(source, "image/svg+xml");
+        const allowed = new Set(["svg", "g", "path", "rect", "circle", "ellipse", "line", "polyline", "polygon", "defs", "linearGradient", "radialGradient", "stop", "clipPath", "mask", "title", "desc", "metadata", "style", "use"]);
+        const safe = !/<!ENTITY/i.test(source) && svg.documentElement.localName === "svg" && !svg.querySelector("parsererror") && [...svg.querySelectorAll("*")].every((element) =>
+          allowed.has(element.localName) && (element.localName !== "style" || !/url\s*\(|@import|javascript:|expression\s*\(/i.test(element.textContent)) && [...element.attributes].every((attribute) => {
+            if (attribute.name === "xmlns" || attribute.name.startsWith("xmlns:")) return true;
+            if (/^on/i.test(attribute.name) || /javascript:|https?:|data:|@import/i.test(attribute.value)) return false;
+            if (attribute.localName === "href") return /^#[\w.-]+$/.test(attribute.value);
+            return [...attribute.value.matchAll(/url\s*\(([^)]*)\)/gi)].every((match) => /^#[\w.-]+$/.test(match[1].trim().replace(/^["']|["']$/g, "")));
+          })
+        );
         if (!safe) { message.textContent = "This SVG contains unsupported or unsafe content."; return; }
+        const sanitizedSource = new XMLSerializer().serializeToString(svg.documentElement);
         const image = document.createElement("img");
         image.id = `custom-svg-${crypto.randomUUID()}`;
-        image.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(source)))}`;
+        image.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(sanitizedSource)))}`;
         image.alt = file.name.replace(/\.svg$/i, "");
         image.draggable = true;
-        image.setAttribute("data-draggable-class", "switch");
+        image.setAttribute("data-draggable-class", item.querySelector("select").value);
         image.addEventListener("dragstart", drag);
         const tile = document.createElement("li");
         tile.className = "rmenu-item-i custom-icon-tile";

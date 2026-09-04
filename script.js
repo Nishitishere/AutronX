@@ -2575,6 +2575,26 @@ function drag(ev) {
   }
 }
 
+// Selecting an icon then a slot is the touch/keyboard-friendly alternative to
+// dragging, and also lets an existing icon be replaced reliably.
+document.addEventListener("click", (event) => {
+  const source = event.target.closest(".rmenu-icon img[data-draggable-class]");
+  if (source) {
+    window.autronxTouchDragId = source.id;
+    document.body.classList.add("touch-icon-selected");
+    return;
+  }
+  if (!window.autronxTouchDragId || event.target.closest("button, .close, .closetwo, .closethree")) return;
+  const target = event.target.closest("#maindiv [data-droppable-class]");
+  if (target) drop({ preventDefault() {}, target });
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    window.autronxTouchDragId = "";
+    document.body.classList.remove("touch-icon-selected");
+  }
+});
+
 function getDropTargetDefaultClass(targetElement) {
   const droppableElementData = targetElement.getAttribute("data-droppable-class");
 
@@ -2624,29 +2644,34 @@ function drop(ev) {
   ev.preventDefault();
   var data = ev.dataTransfer ? ev.dataTransfer.getData("text") : window.autronxTouchDragId;
   if (!data) return;
-  var nodeCopy = document.getElementById(data).cloneNode(true);
-  nodeCopy.id = "newId";
+  const source = document.getElementById(data);
+  const target = ev.target.closest("#maindiv [data-droppable-class]");
+  if (!source || !target) return;
+  var nodeCopy = source.cloneNode(true);
+  nodeCopy.removeAttribute("id");
+  nodeCopy.draggable = false;
+  nodeCopy.style.pointerEvents = "none";
 
-  const droppableElementData = ev.target.getAttribute("data-droppable-class");
+  const droppableElementData = target.getAttribute("data-droppable-class");
   const draggableElementData = document
     .getElementById(data)
     .getAttribute("data-draggable-class");
 
   if (
-    design == "color" ||
+    (design == "color" && droppableElementData === "switch") ||
     droppableElementData === "fan" ||
     droppableElementData === "dimmer"
   ) {
     if (droppableElementData === draggableElementData) {
       const image = $(nodeCopy)[0].src;
-      restoreDropTargetVisual(ev.target, image);
-      rememberIconDrop(ev.target, document.getElementById(data));
+      restoreDropTargetVisual(target, image);
+      rememberIconDrop(target, source);
     }
   } else {
     if (droppableElementData === draggableElementData) {
-      ev.target.appendChild(nodeCopy);
-      ev.target.classList.add("hiden-border");
-      rememberIconDrop(ev.target, document.getElementById(data));
+      target.replaceChildren(nodeCopy);
+      target.classList.add("hiden-border");
+      rememberIconDrop(target, source);
     }
   }
   window.autronxTouchDragId = "";
@@ -2661,13 +2686,15 @@ window.restoreAutronxPanelIcons = function (configuration) {
       const [moduleClass, targetClass] = key.slice(5).split(":");
       const target = moduleClass === "panel" ? document.querySelector(`.${targetClass}`) : document.querySelector(`.${moduleClass} .${targetClass}`);
       if (!target || !saved.source) continue;
-      if (design == "color" || target.dataset.droppableClass === "fan" || target.dataset.droppableClass === "dimmer") {
+      if ((design == "color" && target.dataset.droppableClass === "switch") || target.dataset.droppableClass === "fan" || target.dataset.droppableClass === "dimmer") {
         restoreDropTargetVisual(target, saved.source);
       } else {
         target.replaceChildren();
         const image = document.createElement("img");
         image.src = saved.source;
         image.alt = "Saved panel icon";
+        image.draggable = false;
+        image.style.pointerEvents = "none";
         image.setAttribute("data-draggable-class", saved.type || "switch");
         target.appendChild(image);
         target.classList.add("hiden-border");
